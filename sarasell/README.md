@@ -15,6 +15,7 @@ structural difference: the methods shared between instances need not be linked
 initially as methods of the factory, but can instead be 'siblings' of it, functions
 local to the IFFEs scope.
 
+//ANSWER
 var makeCard = (function () {
 	var rankNames = ['','Ace','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten',
                 'Jack','Queen','King'];
@@ -47,6 +48,8 @@ var makeCard = (function () {
 	};
 	return factory;
 })();
+
+//example
 var card1 = makeCard(1);
 > Object {id: 1, rank: 1, suit: 2, color: "red", cardName: "Ace of Diamonds"}
 card1.rank()
@@ -58,20 +61,91 @@ card1.rank
 
 If you havent yet finished Homework 4, #2f, please do so first.
 
-makeDeque.readmit = function(val) { // returns true if val was absent
-	var foundAt = this.absent.indexOf(val);
-	if (foundAt < 0) // -1 if not found
-			return false;
-	// else found; excise from absent array
-	this.absent.splice(foundAt,1);
-	return true;
+//ANSWER
+function makeDeque(values) {
+	var newDeque = {};
+	var dequeCopy = values.slice();
+	newDeque.setter = function(val) {
+		dequeCopy.push(val);
+	}
+	newDeque.getter = function () { 
+		return dequeCopy.slice();
+	}
+	function newDeque.top () {
+		return dequeCopy[dequeCopy.length-1];
+	}
+	function newDeque.bottom(){
+		return dequeCopy[0];
+	}
+	function newDeque.pop(){
+		;
+	}
+	function newDeque.push(val){
+		;
+	}
+	function newDeque.shift() {
+		;
+	}
+	function newDeque.unshift(val) {
+		;
+	}
+	function newDeque.cut() {
+		;
+	}
+	function newDeque.map() {
+		;
+	}
+	function newDeque.sort() {
+		;
+	} 
+
 }
 
-That implementation of a deque tries to maintain the integrity of its contents by preventing a _push_ or _unshift_ of items not in the original deque.  But a programmer could deliberately or accidentally circumvent those efforts by accessing and changing the deques array instead of using its methods.  
 
-Write another version of a deque factory which protects the deque instances by using closures to hide their content arrays from the outside world.  Your deque methods should be the only way of changing their hidden arrays.
+makeDeque.pop = function() {
+	this.array.pop();
+};
 
-_(Hint #1: youll have to give up the strategy of sharing factory methods with instances to avoid redundancy.  Instead, have each call to the factory generate a set of methods specific to one deque instance which can access any private arrays associated with it.)_
+makeDeque.push = function(val) {
+	this.array.push(val);
+	return this.array;
+};
+
+makeDeque.shift = function() {
+	this.array.shift();
+	return this.array;
+};
+
+makeDeque.unshift = function(val) {
+	this.array.unshift();
+	return this.array;
+};
+
+makeDeque.cut = function(offset) {
+	var makeDeque2 = makeDeque.slice(25,51); 
+	var 3 = makeDeque.concat(makeDeque2);
+};
+
+makeDeque.map = function(convertValFn) {
+	return this.array.map(convertValFn);
+};
+
+makeDeque.sort = function(compareValsFn) {
+		return this.array.sort(compareValsFn);
+	}
+};
+
+
+That implementation of a deque tries to maintain the integrity of its contents by preventing a _push_ or _unshift_ of 
+items not in the original deque.  But a programmer could deliberately or accidentally circumvent those efforts by 
+accessing and changing the deques array instead of using its methods.  
+
+Write another version of a deque factory which protects the deque instances by using closures to hide their content 
+arrays from the outside world.  Your deque methods should be the only way of changing their hidden arrays.
+
+_(Hint #1: youll have to give up the strategy of sharing factory methods with instances to avoid redundancy.  Instead, 
+have each call to the factory generate a set of methods specific to one deque instance which can access any private 
+arrays associated with it.)_
 
 _(Hint #2: the private arrays will live in a function scope, not in an object.)_
 
@@ -90,36 +164,73 @@ methods:
  It should not be possible, however, to modify the username or password once created nor to directly see the password.
 
 //ANSWER
-function makeUser(username) {
-	return { name:username }
+function makeUser(username,password) {
+  var userObj = {
+      	getName: function getName() { 
+          return username; 
+        },
+		validate: function validate(str) { 
+          return str === password;
+        }
+  };
+	return userObj;
 }
+//example
+var Sara = makeUser("sara","123");
+undefined
+Sara.getName()
+"sara"
+Sara.validate("red")
+false
+Sara.validate("123")
+true
 
-var Sara = makeUser("username");
-console.log(Sara);
+**b)** _[difficult, 2 hrs]_ Now that we can make user objects, lets assume that our system needs some version of a
+"system log" that will record messages left by different users. This system log, being shared by all user objects
+created, will contain all the messages that users have recorded. You will need to modify the factory you made above to
+be a part of a module that has a private variable that holds the system log.
 
-function makePwd(name,password) {
-	name.pass = "password"
-	return name;
-}
+  + Each *user* object should have an additional method `record(message)` which writes an entry to the shared log in the
+  format "_username: message_" and returns true.  If no message is provided, the `record` method should return undefined
+  instead.
 
-function validate(pwdstr) {
-	function check(attempt) {
-		return (attempt === pwdstr);
-	}	
-	return check;
-}
-
-var verifyPassword = validate("myPassword");
-verifyPassword("tryPassword");    
-
-
-**b)** _[difficult, 2 hrs]_ Now that we can make user objects, lets assume that our system needs some version of a "system log" that will record messages left by different users. This system log, being shared by all user objects created, will contain all the messages that users have recorded. You will need to modify the factory you made above to be a part of a module that has a private variable that holds the system log.
-
-  + Each *user* object should have an additional method `record(message)` which writes an entry to the shared log in the format "_username: message_" and returns true.  If no message is provided, the `record` method should return undefined instead.
+//ANSWER
+var makeUser = (function () { 
+	var log = [];
+	function makeUser(username,password) {
+		var userObj = { 
+			getName: function getName() { 
+					return username;
+			},
+			validate: function validate(str) { 
+					return str === password;
+			},
+			record: function record(username,message) { 
+					if (message) {
+						log.push(username + ": " + message); 
+						return true;
+					}
+						return undefined;
+			}	
+		};
+	return makeUser;		
+	}
+})();
 
   + Reading from the log is a operation of the system and not of individual users.
-  The factory itself should have a method `getLog(username)` whose argument _username_ is optional.  If _username_ is provided, _getLog_ should return a string of all log entries recorded by that user.  If _username_ is omitted (therefore undefined), return a string of all log entries from everyone.  In either case, log entries should be separated by newlines.
+  The factory itself should have a method `getLog(username)` whose argument _username_ is optional.  If _username_ is
+  provided, _getLog_ should return a string of all log entries recorded by that user.  If _username_ is omitted (
+  therefore undefined), return a string of all log entries from everyone.  In either case, log entries should be
+  separated by newlines.
+
+
+	function getLog(username) {
+		if (username) {
+			return userObj[record].join(\n);
+		}
+		return log.join(\n);
+	}
+
 
 The log should not be able to be modified other than through a users _record_ method.
-
 

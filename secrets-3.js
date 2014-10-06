@@ -14,6 +14,14 @@
 // It should not be possible, however, to modify the username or 
 // password once created nor to directly see the password.
 
+function makeUser(name, pwd) {
+	function makeUserObj(name,pwd) {
+		return {name:name, password:pwd};
+	}
+	function check(attempt) {return (attempt===pwd)}
+	return makeUserObj;
+}
+
 // b) [difficult, 2 hrs] Now that we can make user objects, let's 
 // assume that our system needs some version of a "system log" that 
 // will record messages left by different users. This system log, 

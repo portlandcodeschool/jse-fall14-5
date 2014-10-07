@@ -237,13 +237,14 @@ var userSystem = (function() {
 		if (name === undefined) {
 			return systemLog.join("\n");
 		} else {
-			return systemLog.filter(nameFilter);
+			return systemLog.filter(nameFilter).join("\n");
+		}
+
+		function nameFilter(el) {
+			return name === el.slice(0, el.indexOf(":"))
 		}
 	};
 
-	function nameFilter(name) {
-		
-	};
 
 	function makeUser(name,pwd) {
 
@@ -267,5 +268,20 @@ var userSystem = (function() {
 
 }) ();
 
+//TESTING for 3b):
+
+var mike = userSystem.makeUser("Mike","y0");
+
+var jon = userSystem.makeUser("Jon","m3");
+
+mike.record('Hello!');
+
+jon.record('Goodbye.');
+
+mike.record('Okay.');
+
+userSystem.getLog();
+
+userSystem.getLog('Mike');
 
 
